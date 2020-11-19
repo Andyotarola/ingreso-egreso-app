@@ -6,6 +6,11 @@ import Swal from 'sweetalert2'
 import { map } from 'rxjs/operators'
 import { User } from 'src/app/models/user'
 import { AngularFirestore } from '@angular/fire/firestore';
+import { AppState } from '../app.reducer';
+import { Store } from '@ngrx/store'
+import { ActiveLoadingAction, DesactiveLoadingAction } from '../shared/ui.actions';
+import { SetUserAction } from './auth.actions';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,10 +20,14 @@ export class AuthService {
   constructor(
     private afAuth:AngularFireAuth,
     private afs:AngularFirestore,
-    private router:Router
+    private router:Router,
+    private store:Store<AppState>
   ){}
 
   createUser(name:string, email:string, password:string): void{
+
+    this.store.dispatch(new ActiveLoadingAction())
+
     this.afAuth.createUserWithEmailAndPassword(email, password)
       .then(data => {
 
@@ -32,22 +41,29 @@ export class AuthService {
           .set(user)
           .then(()=>{
             this.router.navigate(['/'])
+            this.store.dispatch(new DesactiveLoadingAction())
+
           })
         
       })
       .catch(err => {
         console.log(err);
+        this.store.dispatch(new DesactiveLoadingAction())
         Swal.fire('Error al registrar', err.message, 'error')
       })
   }
 
   login(email:string, password:string){
+    this.store.dispatch(new ActiveLoadingAction())
+
     this.afAuth.signInWithEmailAndPassword(email, password)
       .then(data => {
         this.router.navigate(['/'])
+        this.store.dispatch(new DesactiveLoadingAction())
       })
       .catch(err => {
         console.log(err);
+        this.store.dispatch(new DesactiveLoadingAction())
         Swal.fire('Error en el login', err.message, 'error')
       })
   }
@@ -62,13 +78,19 @@ export class AuthService {
     return this.afAuth.authState
       .pipe(
         map(user => {
+          if(user == null){
+            this.router.navigate(['/login'])
+          }else{
+            this.afs.doc<User>(`users/${user.uid}`)
+            .valueChanges()
+            .subscribe( userData => {
+                console.log(userData);  
+                this.store.dispatch(new SetUserAction(userData))
+              })
+          }
 
-          console.log(user);
-          
+          return user != null
 
-          if(user == null) this.router.navigate(['/login'])
-
-          return user !=null
         })
       )
   }
