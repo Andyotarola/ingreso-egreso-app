@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "ingreso-egreso-dab4e": {
+      "hosting": {
+        "adminApp": [
+          "ingreso-egreso-dab4e"
+        ]
+      }
+    }
+  }
+}
