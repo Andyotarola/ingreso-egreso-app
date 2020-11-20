@@ -18,6 +18,9 @@ export const authReducer = (state=initState,action:fromAuthActions.actions):Auth
                 user: { ...action.user }
             };
 
+        case fromAuthActions.UNSET_USER:
+            return {user: null}
+
         default:
             return state;
     }
