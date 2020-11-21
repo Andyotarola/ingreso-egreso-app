@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../app.reducer';
 import { Subscription } from 'rxjs';
 import { ActiveLoadingAction, DesactiveLoadingAction } from '../shared/ui.actions';
+import * as fromIngresoEgreso from './ingreso-egreso.reducer'
 
 @Component({
   selector: 'app-ingreso-egreso',
@@ -32,7 +33,7 @@ export class IngresoEgresoComponent implements OnInit,OnDestroy {
 
   constructor(
     private ingresoEgresoService:IngresoEgresoService,
-    private store:Store<AppState>
+    private store:Store<fromIngresoEgreso.IngresoEgresoAppState>
   ){}
 
   ngOnInit(): void {
@@ -55,9 +56,9 @@ export class IngresoEgresoComponent implements OnInit,OnDestroy {
       .then(()=>{
         this.store.dispatch(new DesactiveLoadingAction())
         Swal.fire('Creado', ingresoEgreso.description, 'success')
-        // this.form.reset({
-        //   amount: 0
-        // })
+        this.form.reset({
+          amount: 0
+        })
 
       })
       .catch(err => console.log(err))

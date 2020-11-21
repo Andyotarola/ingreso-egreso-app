@@ -43,9 +43,8 @@ export class AuthService {
         this.afs.collection('users').doc(user.uid)
           .set(user)
           .then(()=>{
-            this.router.navigate(['/'])
             this.store.dispatch(new DesactiveLoadingAction())
-
+            this.router.navigate(['/'])
           })
         
       })
@@ -61,8 +60,8 @@ export class AuthService {
 
     this.afAuth.signInWithEmailAndPassword(email, password)
       .then(data => {
-        this.router.navigate(['/'])
         this.store.dispatch(new DesactiveLoadingAction())
+        this.router.navigate(['/'])
       })
       .catch(err => {
         console.log(err);
@@ -83,9 +82,11 @@ export class AuthService {
     return this.afAuth.authState
       .pipe(
         map(user => {
+          console.log(user);
+          
           if(user == null){
             this.user = null;
-            this.router.navigate(['/login'])
+            // this.router.navigate(['/login'])
           }else{
             
             this.subscription = this.afs.doc<User>(`users/${user.uid}`)
